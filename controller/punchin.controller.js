@@ -25,7 +25,6 @@ module.exports.MARK_PUNCH_IN = (req, res, next) => {
     else {
 
       PunchIn.find({ punchInBy, punchInDate }).select("punchInBy punchInTime punchInDate").then(punchIns => {
-        _punchins = punchins;
         if (!punchIns.length) {
           const punchIn = new PunchIn({
             punchInTime,
@@ -40,13 +39,15 @@ module.exports.MARK_PUNCH_IN = (req, res, next) => {
             .catch(err => next(err));
           return res.status(200).json({ punchIns });
         } else {
-          punchin[index].punchInTime.push(punchInTime);
-          punchin.save();
+          PunchIn.findOneAndUpdate({ punchInBy, punchInDate }, { $push: { punchInTime: punchInTime } }, (err, model) => {
+            console.log(model);
+            return res.status(200).json({ model });
+          });
+          
         }
+
       });
 
-      // punchin.findOneAndUpdate({ punchInBy, punchInDate }, { $push: { punchInTime } });
-      return res.status(200).json({ punchIns });
     }
   })
 
